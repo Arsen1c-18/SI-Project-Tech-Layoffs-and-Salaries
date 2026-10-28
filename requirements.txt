@@ -12,6 +12,7 @@ lxml>=5.0
 
 # Interactive demo
 gradio==6.30.0
+streamlit>=1.40
 
 # Notebook runtime
 jupyterlab>=4.3

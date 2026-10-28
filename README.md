@@ -90,6 +90,17 @@ The t-test and ANOVA establish that the groups differ; they do **not** establish
 
 ## How to run
 
+### Streamlit dashboard
+
+Install the dependencies, then run:
+
+```bash
+streamlit run app.py
+```
+
+The dashboard reads both CSV files from the project directory. Use the sidebar to filter salary
+postings by role, seniority, and (optionally) city; the layoffs tab summarizes the supplied snapshot.
+
 ### Local Jupyter
 
 ```bash
