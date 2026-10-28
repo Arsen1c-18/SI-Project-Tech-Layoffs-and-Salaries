@@ -5,6 +5,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 
 ROOT = Path(__file__).resolve().parent
@@ -32,6 +34,14 @@ except FileNotFoundError as error:
     st.error(f"Couldn't find a project CSV: {error.filename}. Keep both data files beside app.py.")
     st.stop()
 
+salary_data["posted_month_dt"] = pd.to_datetime(salary_data["posted_month"], format="%Y-%m", errors="coerce")
+salary_data["month_index"] = (
+    salary_data["posted_month_dt"].dt.year * 12 + salary_data["posted_month_dt"].dt.month
+)
+model_data = salary_data.dropna(subset=["month_index", "salary_mid_inr"])
+month_model = LinearRegression().fit(model_data[["month_index"]], model_data["salary_mid_inr"])
+trend_r2 = r2_score(model_data["salary_mid_inr"], month_model.predict(model_data[["month_index"]]))
+
 with st.sidebar:
     st.header("Salary filters")
     roles = sorted(salary_data["role_family"].dropna().unique())
@@ -52,6 +62,21 @@ filtered = filtered.dropna(subset=["salary_mid_inr"])
 tab_salary, tab_layoffs, tab_about = st.tabs(["Salary explorer", "Layoffs snapshot", "About the data"])
 
 with tab_salary:
+    st.subheader("Salary estimate by posting month")
+    available_months = sorted(salary_data["posted_month"].dropna().unique())
+    selected_month = st.selectbox("Select a posting month", available_months, index=len(available_months) - 1)
+    selected_month_index = pd.Period(selected_month, freq="M").year * 12 + pd.Period(selected_month, freq="M").month
+    estimated_salary = float(month_model.predict(pd.DataFrame({"month_index": [selected_month_index]}))[0])
+    if estimated_salary > 0:
+        st.metric("Estimated annual salary midpoint", f"₹{estimated_salary:,.0f}")
+    else:
+        st.warning(f"The model estimates ₹{estimated_salary:,.0f}, which is not a realistic salary estimate.")
+    st.caption(
+        f"Simple month only linear regression based on all {len(model_data):,} postings. "
+        f"Its R² is {trend_r2:.3f}, so month explains little of the salary variation; "
+        "treat this as a classroom demonstration, not an individual salary forecast."
+    )
+
     if filtered.empty:
         st.info("No postings match these filters. Adjust the selections in the sidebar.")
     else:

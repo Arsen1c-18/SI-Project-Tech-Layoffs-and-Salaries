@@ -98,8 +98,11 @@ Install the dependencies, then run:
 streamlit run app.py
 ```
 
-The dashboard reads both CSV files from the project directory. Use the sidebar to filter salary
-postings by role, seniority, and (optionally) city; the layoffs tab summarizes the supplied snapshot.
+The dashboard reads both CSV files from the project directory. Use the month selector to see the
+simple month-only regression estimate for annual salary, and use the sidebar to filter salary
+postings by role, seniority, and (optionally) city. The layoffs tab summarizes the supplied snapshot.
+The month estimate is a classroom demonstration: posting month alone explains little of the salary
+variation and should not be treated as an individual forecast.
 
 ### Local Jupyter
 
